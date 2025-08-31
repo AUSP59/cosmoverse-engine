@@ -1,0 +1,18 @@
+
+name: Reprotest (best effort)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reprotest:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install reprotest
+        run: sudo apt-get update && sudo apt-get install -y reprotest
+      - name: Build under variations
+        run: |
+          reprotest --variations=-all,+env,+time             "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j && tar -C build -czf out.tar.gz ."             out.tar.gz || true

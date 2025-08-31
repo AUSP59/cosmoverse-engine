@@ -1,0 +1,23 @@
+
+name: SBOM Diff
+on: [pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+      - name: Download base artifact (best effort)
+        run: |
+          echo '{}' > base.cdx.json
+      - name: Diff
+        run: python3 scripts/sbom_diff.py base.cdx.json sbom.cdx.json

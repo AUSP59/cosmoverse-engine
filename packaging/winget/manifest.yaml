@@ -1,0 +1,13 @@
+
+# Example WinGet manifest (fill identifiers before publishing)
+PackageIdentifier: YourOrg.COSMOVERSE
+PackageVersion: 1.0.0
+PackageName: COSMOVERSE ENGINE
+Publisher: Your Org
+License: Apache-2.0
+ShortDescription: COSMOVERSE ENGINE core C++ library and CLI
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    InstallerUrl: https://github.com/your-org/cosmoverse-engine/releases/download/v1.0.0/cosmoverse-windows.zip
+    InstallerSha256: PUT_SHA256_HERE

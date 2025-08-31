@@ -1,0 +1,12 @@
+
+PackageIdentifier: COSMOVERSE.cosmoverse
+PackageVersion: 1.0.0
+PackageName: COSMOVERSE ENGINE
+Publisher: COSMOVERSE
+License: Apache-2.0
+ShortDescription: COSMOVERSE ENGINE CLI
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    InstallerUrl: https://example.com/cosmoverse-1.0.0-windows.zip
+    InstallerSha256: REPLACE_WITH_REAL_SHA256

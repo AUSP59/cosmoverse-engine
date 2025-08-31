@@ -1,0 +1,22 @@
+
+name: Install Test
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cmake-consumer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & Install
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j
+          cmake --install build --prefix $PWD/stage
+      - name: Build consumer using find_package
+        run: |
+          cmake -S examples/cmake_consumer -B examples/cmake_consumer/build -DCMAKE_PREFIX_PATH=$PWD/stage
+          cmake --build examples/cmake_consumer/build -j
+          ./examples/cmake_consumer/build/consumer

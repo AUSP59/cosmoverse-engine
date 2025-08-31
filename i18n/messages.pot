@@ -1,0 +1,7 @@
+
+# COSMOVERSE ENGINE POT
+msgid ""
+msgstr ""
+"Project-Id-Version: cosmoverse 1.0.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en\n"

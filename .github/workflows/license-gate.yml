@@ -1,0 +1,16 @@
+
+name: License Gate
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  license:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate SBOM
+        run: bash scripts/generate_sbom.sh || true
+      - name: License allowlist
+        run: python3 scripts/license_gate.py

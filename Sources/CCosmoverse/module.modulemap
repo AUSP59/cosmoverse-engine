@@ -1,0 +1,6 @@
+
+module CCosmoverse [system] {
+  header "cosmoverse.h"
+  link "cosmoverse"
+  export *
+}

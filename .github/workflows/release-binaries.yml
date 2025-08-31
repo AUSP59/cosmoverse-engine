@@ -1,0 +1,39 @@
+
+name: Release Binaries (matrix)
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-13, windows-2022]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build -j
+      - name: Package (tar/zip)
+        shell: bash
+        run: |
+          mkdir -p dist
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            7z a dist/cosmoverse-windows.zip .\build\bin\*
+          elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
+            tar -C build/bin -czf dist/cosmoverse-macos.tar.gz .
+          else
+            tar -C build/bin -czf dist/cosmoverse-linux.tar.gz .
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cosmoverse-${{ matrix.os }}
+          path: dist/*
+          if-no-files-found: error

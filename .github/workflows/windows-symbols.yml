@@ -1,0 +1,26 @@
+
+name: Windows Symbols
+on:
+  release:
+    types: [published]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pdb:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build
+        run: cmake --build build -j
+      - name: Upload PDBs
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdbs
+          path: |
+            build/**/*.pdb
+            build/**/*.exe
+            build/**/*.dll

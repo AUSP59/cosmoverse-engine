@@ -1,0 +1,9 @@
+
+plugins { id 'java' }
+group = 'org.cosmoverse'
+version = '1.0.0'
+repositories { mavenCentral() }
+tasks.register('run', JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  mainClass = 'org.cosmoverse.Demo'
+}

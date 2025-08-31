@@ -1,0 +1,9 @@
+[project]
+name = "cosmoverse"
+version = "1.0.0"
+description = "Python bindings for COSMOVERSE ENGINE via ctypes"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

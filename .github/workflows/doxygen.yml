@@ -1,0 +1,19 @@
+
+name: Doxygen (artifact)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  doxygen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+      - run: doxygen Doxyfile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: doxygen-html
+          path: html

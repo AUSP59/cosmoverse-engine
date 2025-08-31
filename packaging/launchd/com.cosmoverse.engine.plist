@@ -1,0 +1,14 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.cosmoverse.engine</string>
+  <key>ProgramArguments</key>
+  <array><string>/usr/local/bin/cosmoverse</string><string>serve</string></array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>/var/log/cosmoverse/out.log</string>
+  <key>StandardErrorPath</key><string>/var/log/cosmoverse/err.log</string>
+</dict>
+</plist>

@@ -1,0 +1,15 @@
+
+name: Android NDK (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nttld/setup-ndk@v1
+        with: { ndk-version: r26d }
+      - run: cmake -S . -B build-android -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/android.toolchain.cmake -DCMAKE_BUILD_TYPE=Release && cmake --build build-android -j || true

@@ -1,0 +1,27 @@
+
+name: Perf
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bench-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
+      - name: Run bench JSON
+        run: ./build/bin/cosmoverse bench 200000 0 --json | tee bench.json
+      - name: Compare to baseline
+        run: |
+          python - <<'PY'
+import json,sys
+base=json.load(open('benchmarks/perf_baseline.json'))
+cur=json.load(open('bench.json'))
+max_ms=base['max_ms']
+ms=cur.get('ms',10**9)
+print('Baseline max_ms=',max_ms,' current ms=',ms)
+sys.exit(0 if ms<=max_ms else 1)
+PY

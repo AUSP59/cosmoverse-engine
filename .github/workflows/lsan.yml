@@ -1,0 +1,17 @@
+
+name: LeakSanitizer
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lsan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with LSAN
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCOSMO_ENABLE_LSAN=ON
+          cmake --build build -j
+          ctest --test-dir build --output-on-failure || true

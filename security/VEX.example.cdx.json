@@ -1,0 +1,23 @@
+{
+  "$schema": "https://cyclonedx.org/schema/vex/1.4/schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "vulnerabilities": [
+    {
+      "id": "CVE-YYYY-XXXX",
+      "source": {
+        "name": "NVD"
+      },
+      "analysis": {
+        "state": "not_affected",
+        "justification": "component_not_present"
+      },
+      "affects": [
+        {
+          "ref": "pkg:maven/group/artifact@1.2.3"
+        }
+      ]
+    }
+  ]
+}

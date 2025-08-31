@@ -1,0 +1,28 @@
+
+name: Release Please
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v4
+        with:
+          release-type: simple
+          package-name: cosmoverse
+          changelog-types: |
+            feat: Features
+            fix: Bug Fixes
+            perf: Performance Improvements
+            docs: Documentation
+            build: Build System
+            ci: Continuous Integration

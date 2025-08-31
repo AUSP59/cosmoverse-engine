@@ -1,0 +1,28 @@
+
+name: Python Wheels (advisory)
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*.*.*']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-wheels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.x' }
+      - name: Install cibuildwheel
+        run: pip install cibuildwheel
+      - name: Build wheels
+        run: |
+          cd bindings/python || exit 0
+          python -m cibuildwheel --output-dir wheelhouse || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-wheels
+          path: bindings/python/wheelhouse
+          if-no-files-found: ignore

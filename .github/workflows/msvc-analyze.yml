@@ -1,0 +1,16 @@
+
+name: MSVC Analyze
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure with /analyze
+        run: cmake -S . -B build -DCMAKE_CXX_FLAGS='/analyze' -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build -j

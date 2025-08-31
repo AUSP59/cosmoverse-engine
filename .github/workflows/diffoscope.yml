@@ -1,0 +1,32 @@
+
+name: Reproducibility (diffoscope)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repro:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install diffoscope
+        run: sudo apt-get update && sudo apt-get install -y diffoscope
+      - name: Build A
+        run: |
+          export SOURCE_DATE_EPOCH=946684800
+          cmake -S . -B buildA -DCMAKE_BUILD_TYPE=Release
+          cmake --build buildA -j
+          tar czf A.tgz -C buildA bin lib* 2>/dev/null || true
+      - name: Build B (different env)
+        run: |
+          export SOURCE_DATE_EPOCH=946684801
+          cmake -S . -B buildB -DCMAKE_BUILD_TYPE=Release
+          cmake --build buildB -j
+          tar czf B.tgz -C buildB bin lib* 2>/dev/null || true
+      - name: Diffoscope
+        run: diffoscope --text diffoscope.txt A.tgz B.tgz || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diffoscope
+          path: diffoscope.txt

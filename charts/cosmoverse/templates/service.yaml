@@ -1,0 +1,14 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cosmoverse.fullname" . }}
+  labels: {{- include "cosmoverse.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector: {{- include "cosmoverse.selectorLabels" . | nindent 4 }}

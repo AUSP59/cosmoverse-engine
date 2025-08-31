@@ -1,0 +1,23 @@
+
+name: OSV Scanner
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  osv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install osv-scanner
+        run: |
+          curl -sSfL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_Linux_x86_64.tar.gz | tar -xz
+          sudo mv ./osv-scanner /usr/local/bin/
+      - name: Scan repo
+        run: osv-scanner --recursive . || true
+      - name: Scan SBOM if present
+        run: |
+          if [ -f sbom.cdx.json ]; then
+            osv-scanner --sbom=sbom.cdx.json || true
+          fi

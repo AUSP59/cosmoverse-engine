@@ -1,0 +1,5 @@
+
+Contact: mailto:security@cosmoverse.example.org
+Policy: https://github.com/your-org/cosmoverse-engine/blob/main/SECURITY.md
+Preferred-Languages: en
+Encryption: https://example.org/pgpkeys/cosmoverse.asc

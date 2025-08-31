@@ -1,0 +1,24 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="COSMOVERSE" Language="1033" Version="1.0.0" Manufacturer="COSMOVERSE" UpgradeCode="00000000-0000-0000-0000-000000000000">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+    <MediaTemplate />
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <Feature Id="ProductFeature" Title="cosmoverse" Level="1">
+      <ComponentGroupRef Id="Binaries"/>
+    </Feature>
+  </Product>
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="COSMOVERSE" />
+      </Directory>
+    </Directory>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="Binaries">
+      <!-- Fill with heat.exe harvested components in CI -->
+    </ComponentGroup>
+  </Fragment>
+</Wix>

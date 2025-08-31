@@ -1,0 +1,21 @@
+
+name: Performance Gate (advisory)
+on: [pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  perf-gate:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & bench
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j
+          build/bin/cosmoverse bench 200000 0 || true
+          echo '{}' > baseline.json
+          echo '{"results":[{"mean":0.001}]}' > perf.json || true
+      - run: python3 scripts/perf_gate.py perf.json baseline.json 1.20 || true

@@ -1,0 +1,19 @@
+
+name: Fuzzers (build-only)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang
+        run: sudo apt-get update && sudo apt-get install -y clang
+      - name: Build fuzzers
+        env: { CXX: clang++ }
+        run: |
+          cmake -S . -B build-fuzz -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCOSMO_BUILD_FUZZERS=ON
+          cmake --build build-fuzz -j || true

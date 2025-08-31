@@ -1,0 +1,21 @@
+
+name: Accessibility (Pa11y) on docs
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pa11y:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.x' }
+      - run: pip install mkdocs-material
+      - run: mkdocs serve -a 0.0.0.0:8000 &
+      - run: |
+          sleep 4
+          npm --version >/dev/null 2>&1 || (curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs)
+          npx --yes pa11y-ci || true

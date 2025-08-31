@@ -1,0 +1,19 @@
+
+name: yamllint
+on:
+  push:
+    paths: ['**/*.yml','**/*.yaml']
+  pull_request:
+    paths: ['**/*.yml','**/*.yaml']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yaml:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install --user yamllint
+      - run: ~/.local/bin/yamllint . || python3 -m yamllint . || true

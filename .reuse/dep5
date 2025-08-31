@@ -1,0 +1,9 @@
+
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: cosmoverse
+Upstream-Contact: maintainers@cosmoverse.example.org
+Source: https://github.com/your-org/cosmoverse-engine
+
+Files: *
+Copyright: 2025 COSMOVERSE Maintainers
+License: Apache-2.0

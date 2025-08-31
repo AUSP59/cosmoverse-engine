@@ -1,0 +1,25 @@
+
+name: Changelog Guard
+on: [pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ensure-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Detect code changes
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          changed=$(git diff --name-only HEAD origin/${{ github.base_ref }} | tr '\n' ' ')
+          echo "changed=$changed" >> $GITHUB_OUTPUT
+      - name: Enforce CHANGELOG for code changes
+        run: |
+          ch="${{ steps.diff.outputs.changed }}"
+          if echo "$ch" | grep -E '(src/|include/|apps/)' >/dev/null; then
+            echo "$ch" | grep -q 'CHANGELOG.md' || (echo 'Please update CHANGELOG.md' && exit 1)
+          fi

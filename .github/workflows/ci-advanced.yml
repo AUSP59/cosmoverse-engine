@@ -1,0 +1,100 @@
+
+name: CI Advanced
+on:
+  pull_request:
+  push:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanitize-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        san: [asan-ubsan, tsan]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-ccache-
+      - name: Setup ccache
+        run: sudo apt-get update && sudo apt-get install -y ccache && echo 'export CC="ccache gcc"; export CXX="ccache g++"' >> $GITHUB_ENV
+      - name: Configure
+        run: |
+          if [ "${{ matrix.san }}" = "asan-ubsan" ]; then
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCOSMO_ENABLE_ASAN=ON -DCOSMO_ENABLE_UBSAN=ON
+          else
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCOSMO_ENABLE_TSAN=ON
+          fi
+      - name: Build & Test
+        run: cmake --build build -j && ctest --test-dir build --output-on-failure
+  clang-tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-ccache-
+      - name: Setup ccache
+        run: sudo apt-get update && sudo apt-get install -y ccache && echo 'export CC="ccache gcc"; export CXX="ccache g++"' >> $GITHUB_ENV
+      - name: Install clang-tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      - name: Run clang-tidy
+        run: clang-tidy -p build $(git ls-files '*.cpp') || true
+  cppcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-ccache-
+      - name: Setup ccache
+        run: sudo apt-get update && sudo apt-get install -y ccache && echo 'export CC="ccache gcc"; export CXX="ccache g++"' >> $GITHUB_ENV
+      - name: Install cppcheck
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
+      - name: Run cppcheck
+        run: cppcheck --enable=warning,style,performance --inline-suppr --error-exitcode=0 .
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-ccache-
+      - name: Setup ccache
+        run: sudo apt-get update && sudo apt-get install -y ccache && echo 'export CC="ccache gcc"; export CXX="ccache g++"' >> $GITHUB_ENV
+      - name: Check formatting
+        run: |
+          if ! command -v clang-format >/dev/null; then sudo apt-get update && sudo apt-get install -y clang-format; fi
+          diff -u <(git ls-files '*.hpp' '*.h' '*.cpp' | xargs -I{{}} bash -lc 'clang-format {{}}') <(git ls-files '*.hpp' '*.h' '*.cpp' | xargs cat) || (echo 'Run scripts/format_all.sh' && exit 1)
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: ${{ runner.os }}-ccache-
+      - name: Setup ccache
+        run: sudo apt-get update && sudo apt-get install -y ccache && echo 'export CC="ccache gcc"; export CXX="ccache g++"' >> $GITHUB_ENV
+      - name: Build with coverage
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCOSMO_ENABLE_COVERAGE=ON && cmake --build build -j && ctest --test-dir build
+      - name: Generate coverage XML
+        run: pip install gcovr && gcovr -r . --xml -o coverage.xml --exclude-directories build/_deps || true
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false

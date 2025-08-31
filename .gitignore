@@ -1,0 +1,41 @@
+build/
+*.obj
+*.o
+*.exe
+*.dll
+*.so
+*.dylib
+.cache/
+.idea/
+.vscode/
+.DS_Store
+compile_commands.json
+
+
+# Build artifacts
+build/
+_build/
+dist/
+*.o
+*.obj
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.pch
+*.pdb
+*.gcno
+*.gcda
+*.coverage
+# IDE
+.vscode/
+.idea/
+# OS
+.DS_Store
+Thumbs.db
+# Python
+__pycache__/
+*.pyc
+# Node
+node_modules/

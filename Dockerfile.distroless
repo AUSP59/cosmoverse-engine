@@ -1,0 +1,6 @@
+
+# Minimal runtime image (non-root)
+FROM gcr.io/distroless/cc-debian12
+COPY --chown=nonroot:nonroot build/bin/cosmoverse /usr/local/bin/cosmoverse
+USER nonroot
+ENTRYPOINT ["/usr/local/bin/cosmoverse"]

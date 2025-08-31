@@ -1,0 +1,7 @@
+
+COSMO_1.0 {
+  global:
+    cosmoverse_*;
+  local:
+    *;
+};

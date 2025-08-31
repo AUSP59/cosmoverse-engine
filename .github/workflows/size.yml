@@ -1,0 +1,28 @@
+
+name: Size Guard
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sizecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Release
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
+      - name: Check sizes
+        run: |
+          python - <<'PY'
+import json,os,sys,glob
+b=json.load(open('benchmarks/size_baseline.json'))
+exe = glob.glob('build/bin/cosmoverse')+glob.glob('build/cosmoverse')
+lib = glob.glob('build/libcosmoverse.so')+glob.glob('build/lib/libcosmoverse.so')+glob.glob('build/bin/libcosmoverse.dll')
+exe_sz = os.path.getsize(exe[0]) if exe else 0
+lib_sz = os.path.getsize(lib[0]) if lib else 0
+print('exe bytes',exe_sz,'limit',b['cosmoverse_max_bytes'])
+print('lib bytes',lib_sz,'limit',b['libcosmoverse_max_bytes'])
+if exe_sz and exe_sz>b['cosmoverse_max_bytes']: sys.exit(1)
+if lib_sz and lib_sz>b['libcosmoverse_max_bytes']: sys.exit(1)
+PY

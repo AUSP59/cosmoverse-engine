@@ -1,0 +1,21 @@
+
+name: clang-format
+on:
+  push:
+    paths: ['**/*.yml','**/*.yaml']
+  pull_request:
+    paths: ['**/*.yml','**/*.yaml']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang-format
+          diff -u <(echo -n) <(git ls-files '*.[ch]' '*.[ch]pp' '*.[ch]xx' | xargs -r clang-format -style=file -n) || true

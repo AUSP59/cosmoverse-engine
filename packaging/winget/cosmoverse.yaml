@@ -1,0 +1,9 @@
+
+# Placeholder manifest for WinGet submission
+PackageIdentifier: COSMOVERSE.COSMOVERSE
+PackageVersion: 1.0.0
+PackageName: COSMOVERSE ENGINE
+Publisher: COSMOVERSE Maintainers
+License: Apache-2.0
+ShortDescription: COSMOVERSE ENGINE CLI and library
+Installers: []

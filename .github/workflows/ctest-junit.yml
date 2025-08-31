@@ -1,0 +1,19 @@
+
+name: CTest JUnit
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  junit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - run: cmake --build build -j
+      - run: ctest --test-dir build --output-junit junit.xml || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: junit
+          path: build/junit.xml

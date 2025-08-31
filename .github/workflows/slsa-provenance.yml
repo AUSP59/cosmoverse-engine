@@ -1,0 +1,21 @@
+
+name: SLSA Provenance (Source)
+on:
+  push:
+    tags: ['v*.*.*']
+permissions:
+  actions: read
+  contents: write
+  id-token: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate-provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: slsa-framework/slsa-github-generator/actions/generator@v2.0.0
+        with:
+          compile-generator: true
+          upload-assets: true

@@ -1,0 +1,12 @@
+
+# Build static binary against musl (example)
+FROM alpine:3.20 AS build
+RUN apk add --no-cache build-base cmake ninja musl-dev
+WORKDIR /src
+COPY . .
+RUN cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOSMO_HARDEN=ON  && cmake --build build -j  && strip build/bin/cosmoverse
+
+FROM scratch
+LABEL org.opencontainers.image.title="COSMOVERSE ENGINE"       org.opencontainers.image.description="Portable C++ library and CLI"       org.opencontainers.image.licenses="Apache-2.0"
+COPY --from=build /src/build/bin/cosmoverse /cosmoverse
+ENTRYPOINT ["/cosmoverse"]

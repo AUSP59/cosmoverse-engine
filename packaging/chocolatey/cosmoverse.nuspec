@@ -1,0 +1,16 @@
+
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>cosmoverse</id>
+    <version>1.0.0</version>
+    <title>COSMOVERSE ENGINE</title>
+    <authors>COSMOVERSE Maintainers</authors>
+    <owners>COSMOVERSE Maintainers</owners>
+    <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/your-org/cosmoverse-engine</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>COSMOVERSE ENGINE core CLI and library</description>
+    <tags>cosmoverse c++ engine</tags>
+  </metadata>
+</package>

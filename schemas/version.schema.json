@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.cosmoverse/version.schema.json",
+  "title": "Cosmoverse version JSON",
+  "type": "object",
+  "required": [
+    "version",
+    "git",
+    "build_time",
+    "compiler",
+    "cxx_std"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "git": {
+      "type": "object",
+      "required": [
+        "desc",
+        "sha"
+      ],
+      "properties": {
+        "desc": {
+          "type": "string"
+        },
+        "sha": {
+          "type": "string",
+          "minLength": 7
+        }
+      }
+    },
+    "build_time": {
+      "type": "string"
+    },
+    "compiler": {
+      "type": "string"
+    },
+    "cxx_std": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

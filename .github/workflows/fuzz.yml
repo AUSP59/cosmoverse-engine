@@ -1,0 +1,21 @@
+
+name: Fuzz (short run)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang
+        run: sudo apt-get update && sudo apt-get install -y clang
+      - name: Build fuzz target
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_FUZZ=ON
+          cmake --build build -j --target fuzz_cosmo_api
+      - name: Run for ~15s
+        run: |
+          timeout 15s build/fuzz_cosmo_api || true

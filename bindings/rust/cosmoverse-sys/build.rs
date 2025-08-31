@@ -1,0 +1,1 @@
+fn main(){ let _=pkg_config::probe_library("cosmoverse"); }

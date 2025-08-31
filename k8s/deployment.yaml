@@ -1,0 +1,34 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cosmoverse
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: cosmoverse } }
+  template:
+    metadata:
+      labels: { app: cosmoverse }
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: cosmoverse
+          image: ghcr.io/your-org/cosmoverse-engine:latest
+          args: ["version"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          resources:
+            limits: { cpu: "500m", memory: "256Mi" }
+            requests: { cpu: "100m", memory: "64Mi" }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress","Egress"]

@@ -1,0 +1,32 @@
+
+site_name: COSMOVERSE ENGINE
+site_url: https://your-org.github.io/cosmoverse-engine
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - content.code.copy
+nav:
+  - Home: index.md
+  - Architecture: ARCHITECTURE.md
+  - Getting Started: README.md
+  - Contributing: CONTRIBUTING.md
+  - Governance: GOVERNANCE.md
+  - Security: SECURITY.md
+  - Threat Model: THREAT_MODEL.md
+  - API Stability: API_STABILITY.md
+  - Observability: OBSERVABILITY.md
+  - Packaging: PACKAGING_NATIVE.md
+  - Kubernetes: KUBERNETES.md
+  - Backporting: BACKPORTING.md
+  - Support: SUPPORT.md
+  - Support Policy: SUPPORT_POLICY.md
+  - Maintenance Windows: MAINTENANCE_WINDOWS.md
+  - NIST SSDF Mapping: NIST_SSDF_MAPPING.md
+  - Emergency Release: EMERGENCY_RELEASE.md
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

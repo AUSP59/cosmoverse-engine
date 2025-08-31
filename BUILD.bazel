@@ -1,0 +1,13 @@
+
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "cosmoverse",
+    hdrs = glob(["include/cosmoverse/**/*.hpp", "include/cosmoverse/**/*.h"]),
+    srcs = glob(["src/**/*.cpp","src/**/*.cc"]),
+    includes = ["include"],
+)
+cc_binary(
+    name = "cosmoverse_cli",
+    srcs = glob(["apps/**/*.cpp"]),
+    deps = [":cosmoverse"],
+)

@@ -1,0 +1,10 @@
+
+optConfig:
+  optOut: false
+  # Enforce presence of SECURITY.md and CODE_OF_CONDUCT.md
+  securityPolicy:
+    status: true
+  outsideCollaborators:
+    status: true
+  branchProtection:
+    status: true
