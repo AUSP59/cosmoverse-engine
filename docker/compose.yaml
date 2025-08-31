@@ -1,0 +1,14 @@
+
+services:
+  cosmoverse:
+    image: ghcr.io/your-org/cosmoverse-engine:latest
+    command: ["serve"]
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt:
+      - "no-new-privileges:true"
+    environment:
+      - COSMO_LOG=info
+    network_mode: "none"
+    tmpfs:
+      - /tmp:size=32M

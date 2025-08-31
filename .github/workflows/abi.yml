@@ -1,0 +1,44 @@
+
+name: ABI Compliance
+on: [pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  abi:
+    \1    continue-on-error: true
+    steps:
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y abi-dumper abi-compliance-checker cmake ninja-build
+      - name: Checkout base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+      - name: Build base (shared)
+        run: |
+          cmake -S base -B base/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON
+          cmake --build base/build -j
+      - name: Dump base ABI
+        run: |
+          abi-dumper base/build/libcosmoverse.so -o base.abi --public-headers base/include -lver base
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with: { path: pr }
+      - name: Build PR (shared)
+        run: |
+          cmake -S pr -B pr/build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON
+          cmake --build pr/build -j
+      - name: Dump PR ABI
+        run: |
+          abi-dumper pr/build/libcosmoverse.so -o pr.abi --public-headers pr/include -lver pr
+      - name: Compare
+        run: abi-compliance-checker -l cosmoverse -old base.abi -new pr.abi -report-path abi_report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: abi-report
+          path: abi_report

@@ -1,0 +1,16 @@
+
+name: clang-format check
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y clang-format
+      - run: |
+          files=$(git ls-files '*.h' '*.hpp' '*.c' '*.cpp')
+          [ -z "$files" ] || clang-format --dry-run -Werror $files

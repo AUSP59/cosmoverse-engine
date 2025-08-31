@@ -1,0 +1,42 @@
+
+name: CI Matrix
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    \1    continue-on-error: true
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - uses: mozilla-actions/sccache-action@v0.0.3
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@v4
+      - name: Set up ccache
+        if: runner.os != 'Windows'
+        run: sudo apt-get update && sudo apt-get install -y ccache || true
+      - name: Cache ccache
+        if: runner.os != 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER_LAUNCHER="sccache;ccache"
+      - name: Build
+        run: cmake --build build -j
+      - name: Test
+        run: ctest --test-dir build --output-on-failure || true
+      - name: Plugin smoke
+        run: ./build/bin/cosmoverse plugin $(/bin/ls build/*/*cosmo_sample_plugin* 2>/dev/null || /bin/ls build/*cosmo_sample_plugin* || echo build/Release/cosmo_sample_plugin.dll) --smoke

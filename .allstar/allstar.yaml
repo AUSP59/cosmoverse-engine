@@ -1,0 +1,19 @@
+
+# Org-wide app required; this repo config enables common policy checks when installed.
+optConfig:
+  optInRepos:
+    - cosmoverse-engine
+issueFinder:
+  label: "allstar"
+branchProtection:
+  enforcement: true
+  requireUpToDateBranch: true
+  dismissalRestrictions:
+    users: []
+    teams: []
+securityPolicy:
+  enforcement: true
+outsideCollaborators:
+  enforcement: false
+tokenPermissions:
+  enforcement: true

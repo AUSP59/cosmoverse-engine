@@ -1,0 +1,17 @@
+
+name-template: 'v$NEXT_PATCH_VERSION'
+tag-template: 'v$NEXT_PATCH_VERSION'
+categories:
+  - title: 🚀 Features
+    labels: [feature, enhancement]
+  - title: 🐛 Fixes
+    labels: [bug]
+  - title: 🔒 Security
+    labels: [security]
+change-template: '- $TITLE (#$NUMBER)'
+version-resolver:
+  minor:
+    labels: [feature]
+  patch:
+    labels: [bug, security, documentation]
+  default: patch

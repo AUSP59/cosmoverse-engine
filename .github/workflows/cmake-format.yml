@@ -1,0 +1,15 @@
+
+name: cmake-format
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install cmakelang && cmake-format --version
+      - run: cmake-format -c .cmake-format.yaml -i CMakeLists.txt || true
+      - run: git diff --exit-code || (echo 'Run cmake-format locally' && exit 1)

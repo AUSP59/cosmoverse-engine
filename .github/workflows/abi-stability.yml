@@ -1,0 +1,51 @@
+
+name: ABI Stability
+on: [pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  abi:
+    \1    continue-on-error: true
+    steps:
+      - name: Checkout base
+        uses: actions/checkout@v4
+        with: { ref: ${{ github.base_ref }}, path: base }
+      - name: Build base
+        run: |
+          cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON
+          cmake --build base/build -j
+      - name: Find base lib
+        id: base
+        run: echo "lib=$(find base/build -name 'libcosmoverse*.so' -print -quit)" >> $GITHUB_OUTPUT
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with: { path: pr }
+      - name: Build PR
+        run: |
+          cmake -S pr -B pr/build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON
+          cmake --build pr/build -j
+      - name: Find PR lib
+        id: prlib
+        run: echo "lib=$(find pr/build -name 'libcosmoverse*.so' -print -quit)" >> $GITHUB_OUTPUT
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y abi-dumper abi-compliance-checker
+      - name: Dump ABIs
+        run: |
+          abi-dumper "${{ steps.base.outputs.lib }}" -o base.abi -lver base || true
+          abi-dumper "${{ steps.prlib.outputs.lib }}" -o pr.abi   -lver pr   || true
+      - name: Compare
+        run: |
+          if [ -f base.abi ] && [ -f pr.abi ]; then
+            abi-compliance-checker -l cosmoverse -old base.abi -new pr.abi || true
+            if [ -d compat_reports/cosmoverse ]; then
+              tar -czf abi-report.tgz compat_reports/cosmoverse
+              echo "ABI report saved"
+            fi
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: abi-report
+          path: abi-report.tgz
+          if-no-files-found: ignore

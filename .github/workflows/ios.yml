@@ -1,0 +1,13 @@
+
+name: iOS (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build-ios -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/ios.toolchain.cmake -G Xcode && cmake --build build-ios --config Release || true

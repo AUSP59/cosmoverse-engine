@@ -1,0 +1,54 @@
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-json
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+  - repo: https://github.com/markdownlint/markdownlint
+    rev: v0.13.0
+    hooks:
+      - id: markdownlint
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        entry: bash -lc 'command -v clang-format >/dev/null && clang-format -i $(git ls-files "*.{h,hpp,hh,c,cc,cpp,cxx}") || true'
+        language: system
+        pass_filenames: false
+      - id: cmake-format
+        name: cmake-format
+        entry: bash -lc 'command -v cmake-format >/dev/null && cmake-format -i $(git ls-files "CMakeLists.txt" "cmake/**/*.cmake") || true'
+        language: system
+        pass_filenames: false
+
+- repo: https://github.com/shellcheck-py/shellcheck-py
+  rev: v0.10.0.1
+  hooks:
+    - id: shellcheck
+
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.3.0
+  hooks:
+    - id: codespell
+      args: ["-q", "3", "--skip=.git,build,third_party"]
+
+- repo: local
+  hooks:
+    - id: add-spdx
+      name: Add SPDX headers
+      entry: bash -lc 'python3 scripts/add_spdx.py || true'
+      language: system
+      pass_filenames: false
+
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.41.0
+  hooks:
+    - id: markdownlint
+      args: ["-c", ".markdownlint.json"]

@@ -1,0 +1,19 @@
+
+pkgname=cosmoverse
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="COSMOVERSE ENGINE core C++ library and CLI"
+arch=('x86_64')
+url="https://github.com/your-org/cosmoverse-engine"
+license=('Apache')
+depends=()
+makedepends=('cmake' 'ninja')
+source=("https://example.com/cosmoverse-$pkgver.tar.gz")
+sha256sums=('REPLACE_WITH_REAL_SHA256')
+build() {
+  cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+  cmake --build build -j
+}
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

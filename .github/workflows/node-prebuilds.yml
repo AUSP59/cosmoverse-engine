@@ -1,0 +1,27 @@
+
+name: Node Prebuilds (advisory)
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*.*.*']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prebuilds:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Build prebuilds
+        run: |
+          cd bindings/node || exit 0
+          npm ci || npm install
+          npx prebuildify -t 20.0.0 || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node-prebuilds
+          path: bindings/node/prebuilds
+          if-no-files-found: ignore

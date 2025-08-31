@@ -1,0 +1,6 @@
+
+CompileFlags:
+  Add: [-Wall, -Wextra, -Wpedantic]
+Diagnostics:
+  ClangTidy: true
+  ClangTidyChecks: '-*,bugprone-*,performance-*,modernize-*'

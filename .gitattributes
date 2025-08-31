@@ -1,0 +1,12 @@
+
+* text=auto eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+# linguist
+docs/* linguist-documentation
+# Exclude dev-only files from source archives
+.github export-ignore
+.devcontainer export-ignore
+docs/site export-ignore
+build export-ignore
+dist export-ignore

@@ -1,0 +1,33 @@
+
+name: Sign Release Assets (cosign keyless)
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sign:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with: { cosign-release: 'v2.2.3' }
+      - name: Download assets
+        uses: robinraju/release-downloader@v1.8
+        with:
+          latest: true
+          fileName: "dist/checksums.txt"
+      - name: Sign checksums (keyless OIDC)
+        run: cosign sign-blob --yes --output-signature checksums.txt.sig checksums.txt
+      - name: Upload signatures
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            checksums.txt.sig

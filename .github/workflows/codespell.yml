@@ -1,0 +1,14 @@
+
+name: codespell
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spell:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: pipx install codespell || pip install --user codespell
+      - run: codespell -q 3 --skip .git,build,third_party --ignore-words-list=crate,teh || true

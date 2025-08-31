@@ -1,0 +1,37 @@
+
+name: CodeQL
+on:
+  push:
+    paths: ['src/**','include/**','CMakeLists.txt','**/*.cmake']
+    branches: [ main ]
+    paths: ['src/**','include/**','CMakeLists.txt','**/*.cmake']
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '33 3 * * 3'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j || true
+      - uses: github/codeql-action/analyze@v3
+
+      - uses: github/codeql-action/autobuild@v3

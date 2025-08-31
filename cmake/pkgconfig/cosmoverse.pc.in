@@ -1,0 +1,12 @@
+
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: cosmoverse
+Description: COSMOVERSE ENGINE core C++ library
+URL: https://github.com/your-org/cosmoverse-engine
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lcosmoverse
+Cflags: -I${includedir}

@@ -1,0 +1,18 @@
+
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "archMap": [
+    { "architecture": "SCMP_ARCH_X86_64", "subArchitectures": [ "SCMP_ARCH_X86", "SCMP_ARCH_X32" ] },
+    { "architecture": "SCMP_ARCH_AARCH64", "subArchitectures": [ "SCMP_ARCH_ARM" ] }
+  ],
+  "syscalls": [
+    { "names": ["read","write","exit","futex","nanosleep","clock_gettime","rt_sigaction","rt_sigprocmask","sigaltstack"], "action": "SCMP_ACT_ALLOW" },
+    { "names": ["mmap","mprotect","munmap","brk"], "action": "SCMP_ACT_ALLOW" },
+    { "names": ["openat","close","stat","fstat","lseek","getpid","gettid"], "action": "SCMP_ACT_ALLOW" },
+    { "names": ["access","fcntl","dup","dup2","dup3"], "action": "SCMP_ACT_ALLOW" },
+    { "names": ["pipe","pipe2","eventfd2","epoll_create1","epoll_ctl","epoll_pwait","poll","ppoll"], "action": "SCMP_ACT_ALLOW" },
+    { "names": ["prlimit64","uname"], "action": "SCMP_ACT_ALLOW" },
+    { "names": ["getrandom"], "action": "SCMP_ACT_ALLOW" },
+    { "names": ["keyctl","add_key","request_key","perf_event_open"], "action": "SCMP_ACT_KILL" }
+  ]
+}

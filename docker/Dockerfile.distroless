@@ -1,0 +1,15 @@
+
+# syntax=docker/dockerfile:1
+# Build stage
+FROM debian:stable-slim AS build
+RUN apt-get update && apt-get install -y --no-install-recommends     ca-certificates cmake ninja-build g++ git && update-ca-certificates
+WORKDIR /src
+COPY . .
+RUN cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build -j && cmake --install build --prefix /out
+
+# Run stage (distroless, pinned digest placeholder — replace with a verified digest)
+FROM gcr.io/distroless/cc-debian12@sha256:REPLACE_WITH_REAL_DIGEST
+COPY --from=build /out /usr/local
+USER 65532:65532
+ENTRYPOINT ["/usr/local/bin/cosmoverse"]
+CMD ["version"]

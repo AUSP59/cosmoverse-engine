@@ -1,0 +1,38 @@
+
+name: Sign Release Assets (keyless)
+on:
+  release:
+    types: [published]
+permissions:
+  id-token: write
+  contents: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sign-assets:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sigstore/cosign-installer@v3.6.0
+      - name: Download assets
+        uses: robinraju/release-downloader@v1.10
+        with:
+          latest: true
+          fileName: "*"
+          out-file-path: assets
+      - name: Sign all assets
+        env: { COSIGN_EXPERIMENTAL: "true" }
+        run: |
+          shopt -s nullglob
+          for f in assets/*; do
+            echo "Signing $f"
+            cosign sign-blob --yes --output-certificate "$f.pem" --output-signature "$f.sig" "$f"
+          done
+      - name: Upload signatures
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            assets/*.sig
+            assets/*.pem

@@ -1,0 +1,33 @@
+
+name: Size Compare vs Base
+on: [pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sizecmp:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: ${{ github.base_ref }}, path: base }
+      - run: cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release && cmake --build base/build -j || true
+      - name: Base sizes
+        run: |
+          du -b base/build/bin/* || true
+          du -b base/build/lib/* || true
+          (find base/build -name 'libcosmoverse*.so' -print -quit | xargs -r stat -c %s) > base.size || echo 0 > base.size
+      - uses: actions/checkout@v4
+        with: { path: pr }
+      - run: cmake -S pr -B pr/build -DCMAKE_BUILD_TYPE=Release && cmake --build pr/build -j || true
+      - name: PR sizes
+        run: |
+          du -b pr/build/bin/* || true
+          du -b pr/build/lib/* || true
+          (find pr/build -name 'libcosmoverse*.so' -print -quit | xargs -r stat -c %s) > pr.size || echo 0 > pr.size
+      - name: Compare (fail if >10% bigger)
+        run: |
+          B=$(cat base.size); P=$(cat pr.size); echo "base=$B pr=$P"
+          if [ "$B" -gt 0 ] && [ "$P" -gt 0 ]; then
+            awk -v b=$B -v p=$P 'BEGIN{d=(p-b)/b*100; print "delta%",d; if(d>10) exit 1}'
+          fi

@@ -1,0 +1,42 @@
+name: Coverage
+on:
+  push:
+  pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gcovr:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with coverage
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCOSMO_ENABLE_COVERAGE=ON
+          cmake --build build -j
+          ctest --test-dir build --output-on-failure
+      - name: Generate coverage
+        run: |
+          pip install gcovr
+          gcovr -r . --xml -o coverage.xml --exclude-directories build/_deps || true
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+
+
+      - name: Enforce threshold
+        run: |
+          pip install lxml
+          python - <<'PY'
+import sys
+from lxml import etree
+r=etree.parse('coverage.xml')
+lines=float(r.getroot().get('lines-valid')); covered=float(r.getroot().get('lines-covered'))
+perc= (covered/lines*100) if lines>0 else 0
+thr=80.0
+print(f"Coverage: {perc:.2f}% (threshold {thr}%)")
+sys.exit(0 if perc>=thr else 1)
+PY

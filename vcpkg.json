@@ -1,0 +1,8 @@
+
+{
+  "name": "cosmoverse",
+  "version": "1.0.0",
+  "description": "COSMOVERSE ENGINE core C++ library",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/your-org/cosmoverse-engine"
+}

@@ -1,0 +1,9 @@
+
+PROJECT_NAME           = "COSMOVERSE ENGINE"
+GENERATE_HTML          = YES
+RECURSIVE              = YES
+INPUT                  = include src
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = YES
+
+WARN_LOGFILE = warnings.log

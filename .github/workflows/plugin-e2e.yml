@@ -1,0 +1,30 @@
+
+name: Plugin E2E
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-plugin:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tooling
+        run: sudo apt-get update && sudo apt-get install -y openssl
+      - name: Build core
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
+      - name: Build rust sample
+        run: |
+          cd plugins/rust_sample || exit 0
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          source $HOME/.cargo/env
+          cargo build --release
+      - name: Allowlist hash & run sandbox
+        run: |
+          set -e
+          PLG=$(find plugins/rust_sample/target/release -maxdepth 1 -name "*rust_sample*.so" -o -name "*rust_sample*.dylib" -o -name "*rust_sample*.dll" -print -quit)
+          test -n "$PLG"
+          HASH=$(bash scripts/plugin_hash.sh "$PLG")
+          echo "$HASH" > allow.txt
+          COSMO_PLUGIN_ALLOWLIST_FILE=allow.txt ./build/bin/cosmoverse plugin-sandbox "$PLG" --ping || true

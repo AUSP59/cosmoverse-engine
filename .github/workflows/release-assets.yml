@@ -1,0 +1,88 @@
+
+name: Release (build, sign, SBOM, provenance)
+on:
+  push:
+    tags: [ 'v*.*.*' ]
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-release:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-13, windows-2022]
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build -j
+      - name: Package
+        shell: bash
+        run: |
+          mkdir -p dist
+          if [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            7z a dist/cosmoverse-windows.zip .\build\bin\*
+          elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
+            tar -C build/bin -czf dist/cosmoverse-macos.tar.gz .
+          else
+            tar -C build/bin -czf dist/cosmoverse-linux.tar.gz .
+          fi
+      - name: Checksums
+        shell: bash
+        run: |
+          ( cd dist && (sha256sum * 2>/dev/null || shasum -a 256 *) > SHA256SUMS.txt )
+      - name: SBOM (syft, best effort)
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+          ./syft dir:build -o cyclonedx-json=dist/sbom.cdx.json || true
+      - name: Upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  sign-and-attest:
+    needs: build-release
+    \1    continue-on-error: true
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download release assets
+        uses: robinraju/release-downloader@v1.10
+        with:
+          tag: ${{ github.ref_name }}
+          fileName: "*"
+      - name: Install cosign & crane
+        run: |
+          COSIGN_VERSION=v2.2.4
+          curl -sSfL https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64 -o cosign && chmod +x cosign && sudo mv cosign /usr/local/bin/
+          curl -sSfL https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz | sudo tar -xz -C /usr/local/bin
+      - name: Sign all assets (keyless)
+        env: { COSIGN_EXPERIMENTAL: "1" }
+        run: |
+          for f in $(ls * | grep -E 'cosmoverse-.*\.(zip|tar\.gz)$'); do
+            cosign sign-blob --yes "$f" --output-signature "$f.sig" --output-certificate "$f.pem";
+          done
+      - name: Upload signatures
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.sig
+            *.pem
+      - name: SLSA build provenance (binaries)
+        uses: slsa-framework/slsa-github-generator/actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            cosmoverse-*.zip
+            cosmoverse-*.tar.gz

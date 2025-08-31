@@ -1,0 +1,22 @@
+
+name: Container Scan (GHCR tags)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 2'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Install crane
+        run: |
+          curl -sSfL https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz | sudo tar -xz -C /usr/local/bin
+      - name: Scan latest image via Trivy
+        run: |
+          REF="ghcr.io/${{ github.repository }}:latest"
+          docker run --rm aquasec/trivy:latest image --severity CRITICAL,HIGH --ignore-unfixed --exit-code 0 "$REF"

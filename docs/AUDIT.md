@@ -1,0 +1,4 @@
+- [ ] SPDX/headers where needed
+- [ ] CI green
+- [ ] Sanitizers pass
+- [ ] SBOM attached

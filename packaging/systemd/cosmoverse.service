@@ -1,0 +1,29 @@
+
+[Unit]
+Description=COSMOVERSE ENGINE Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/cosmoverse serve
+User=cosmoverse
+Group=cosmoverse
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+ReadWritePaths=/var/lib/cosmoverse
+ReadOnlyPaths=/usr /etc
+AmbientCapabilities=
+CapabilityBoundingSet=
+# RuntimeDefault seccomp with systemd >= 247
+SystemCallFilter=@system-service
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

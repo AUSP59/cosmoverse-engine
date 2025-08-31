@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "cosmoverse bench result",
+  "type": "object",
+  "required": [
+    "ms",
+    "bytes"
+  ],
+  "properties": {
+    "ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "iterations": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "additionalProperties": true
+}

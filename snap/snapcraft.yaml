@@ -1,0 +1,17 @@
+
+name: cosmoverse
+base: core22
+version: '1.0.0'
+summary: COSMOVERSE ENGINE CLI and library
+description: |
+  COSMOVERSE ENGINE portable C++ core with CLI.
+grade: stable
+confinement: strict
+apps:
+  cosmoverse:
+    command: bin/cosmoverse
+parts:
+  cosmoverse:
+    plugin: cmake
+    source: .
+    build-packages: [g++, cmake, ninja-build]

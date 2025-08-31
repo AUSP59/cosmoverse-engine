@@ -1,0 +1,20 @@
+
+name: Python Bindings Smoke Test
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-ctypes:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build shared
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON
+          cmake --build build -j
+      - name: Import test
+        run: |
+          export COSMOVERSE_LIB=$(realpath build/libcosmoverse.so || echo build/lib/libcosmoverse.so)
+          python -c "import sys; sys.path.insert(0, 'bindings/python'); import cosmoverse as c; print('py version:', c.version())"

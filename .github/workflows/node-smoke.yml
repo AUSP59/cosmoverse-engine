@@ -1,0 +1,22 @@
+
+name: Node Binding Smoke (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-smoke:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Build lib
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON && cmake --build build -j
+      - name: Build addon
+        run: |
+          cd bindings/node
+          npm install node-addon-api node-gyp-build
+          npm run build || true
+          node -e "try{const c=require('./'); console.log('version', c.version&&c.version());}catch(e){console.log('advisory:',e.message)}"

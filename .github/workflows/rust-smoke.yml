@@ -1,0 +1,22 @@
+
+name: Rust Binding Smoke (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-smoke:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Build lib
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON && cmake --build build -j
+      - name: Cargo build examples
+        run: |
+          cd bindings/rust/cosmoverse-sys
+          cargo build --examples || true
+          cargo run --example version || true

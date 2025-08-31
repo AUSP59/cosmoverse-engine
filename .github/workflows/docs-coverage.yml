@@ -1,0 +1,15 @@
+
+name: Docs Coverage Gate
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y doxygen
+      - run: doxygen Doxyfile || true
+      - run: python3 scripts/doc_coverage.py

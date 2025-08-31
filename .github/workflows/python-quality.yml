@@ -1,0 +1,21 @@
+
+name: Python Quality
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ruff-bandit:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.x' }
+      - name: Install tools
+        run: pip install ruff bandit
+      - name: Ruff
+        run: ruff check bindings/python || true
+      - name: Bandit
+        run: bandit -q -r bindings/python || true

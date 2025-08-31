@@ -1,0 +1,23 @@
+
+name: Build with Cache (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cached-build:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ github.ref }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ccache-${{ runner.os }}-
+      - name: Build
+        run: |
+          sudo apt-get update && sudo apt-get install -y ccache
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCOSMO_USE_CCACHE=ON
+          cmake --build build -j || true

@@ -1,0 +1,19 @@
+
+name: cmakelint
+on:
+  push:
+    paths: ['**/*.yml','**/*.yaml']
+  pull_request:
+    paths: ['**/*.yml','**/*.yaml']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cmakelint:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install --user cmakelint
+      - run: ~/.local/bin/cmakelint $(git ls-files '**/CMakeLists.txt' '**/*.cmake' | tr '\n' ' ') || python3 -m cmakelint $(git ls-files '**/CMakeLists.txt' '**/*.cmake' | tr '\n' ' ') || true

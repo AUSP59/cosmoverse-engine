@@ -1,0 +1,19 @@
+
+name: Links (lychee)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Link check
+        uses: lycheeverse/lychee-action@v1.10.0
+        with:
+          args: --no-progress --verbose --accept=200,204 --exclude-mail -r 2 .
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

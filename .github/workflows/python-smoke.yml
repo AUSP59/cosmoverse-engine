@@ -1,0 +1,30 @@
+
+name: Python Binding Smoke (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  py-smoke:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.x' }
+      - name: Build lib
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON && cmake --build build -j
+      - name: Build & import
+        run: |
+          pip install build
+          cd bindings/python
+          python -m build || true
+          python - <<'PY'
+import sys
+print("Attempting to import cosmoverse (may depend on rpath/lib paths)...")
+try:
+  import cosmoverse as c
+  print("Version:", c.version())
+except Exception as e:
+  print("advisory: import failed:", e)
+PY

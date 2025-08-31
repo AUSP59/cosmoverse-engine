@@ -1,0 +1,23 @@
+
+name: Codecov
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  upload:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y gcovr
+      - run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCOSMO_ENABLE_COVERAGE=ON
+          cmake --build build -j
+          ctest --test-dir build --output-on-failure || true
+          gcovr -r . --xml -o coverage.xml
+      - uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          flags: unit
+          fail_ci_if_error: false

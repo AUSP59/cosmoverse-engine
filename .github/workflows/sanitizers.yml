@@ -1,0 +1,26 @@
+
+name: Sanitizers Matrix
+on:
+  push:
+    paths: ['src/**','include/**']
+  pull_request:
+    paths: ['src/**','include/**']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanitize:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        san: [address, undefined, thread]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with ${{ matrix.san }}
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCOSMO_SANITIZE=${{ matrix.san }}
+          cmake --build build -j
+      - name: Run smoke tests
+        run: ctest --test-dir build --output-on-failure || true

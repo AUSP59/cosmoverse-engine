@@ -1,0 +1,14 @@
+
+name: Bazel (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bazel:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bazelbuild/actions/setup-bazelisk@v2
+      - run: bazel build //:cosmoverse_app || true

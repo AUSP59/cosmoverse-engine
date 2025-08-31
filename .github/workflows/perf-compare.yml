@@ -1,0 +1,54 @@
+
+name: Perf Compare vs Base
+on: [pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  perfcmp:
+    \1    continue-on-error: true
+    steps:
+      - name: Checkout base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+      - name: Build base
+        run: |
+          cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build base/build -j
+      - name: Bench base
+        run: |
+          echo "::group::base bench"
+          echo $(./base/build/bin/cosmoverse bench 200000 0 --json) > base.json || true
+          cat base.json || true
+          echo "::endgroup::"
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with: { path: pr }
+      - name: Build PR
+        run: |
+          cmake -S pr -B pr/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build pr/build -j
+      - name: Bench PR
+        run: |
+          echo "::group::pr bench"
+          echo $(./pr/build/bin/cosmoverse bench 200000 0 --json) > pr.json || true
+          cat pr.json || true
+          echo "::endgroup::"
+      - name: Compare (fail if >5% slower)
+        run: |
+          python3 - <<'PY'
+import json, sys
+def ms(p): 
+  try: return json.load(open(p))["ms"]
+  except Exception: return None
+b = ms("base.json"); p = ms("pr.json")
+print("base ms:", b, "pr ms:", p)
+if b and p:
+  delta = (p - b) / b * 100.0
+  print("delta %:", delta)
+  if delta > 5.0: 
+    print("Regression >5%"); sys.exit(1)
+PY

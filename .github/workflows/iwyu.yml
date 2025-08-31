@@ -1,0 +1,15 @@
+
+name: include-what-you-use (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  iwyu:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y iwyu
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_INCLUDE_WHAT_YOU_USE=iwyu || true
+      - run: cmake --build build -j || true

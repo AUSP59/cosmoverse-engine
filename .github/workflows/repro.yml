@@ -1,0 +1,40 @@
+
+name: Reproducible Build Check
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repro:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Install tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y diffoscope
+      - name: Build #1
+        run: |
+          bash scripts/set_repro_epoch.sh
+          cmake -S . -B b1 -DCMAKE_BUILD_TYPE=Release -DCOSMO_REPRO_BUILD=ON
+          cmake --build b1 -j
+      - name: Build #2
+        run: |
+          bash scripts/set_repro_epoch.sh
+          cmake -S . -B b2 -DCMAKE_BUILD_TYPE=Release -DCOSMO_REPRO_BUILD=ON
+          cmake --build b2 -j
+      - name: Compare binaries
+        run: |
+          set -e
+          f1=$(find b1 -type f -path "*/bin/*" -o -path "*/lib/*" | sort | head -n1 || true)
+          f2=$(echo "$f1" | sed 's#^b1/#b2/#')
+          echo "Comparing: $f1  vs  $f2"
+          test -f "$f1" -a -f "$f2" || exit 0
+          if cmp -s "$f1" "$f2"; then
+            echo "Identical"
+          else
+            echo "Binary difference detected"
+            diffoscope "$f1" "$f2" || true
+            exit 1
+          fi

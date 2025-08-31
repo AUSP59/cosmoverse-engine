@@ -1,0 +1,9 @@
+
+cff-version: 1.2.0
+message: "If you use COSMOVERSE ENGINE, please cite it as below."
+title: "COSMOVERSE ENGINE"
+authors:
+  - family-names: "Cosmoverse"
+    given-names: "Contributors"
+version: "1.0.0"
+date-released: "2025-08-30"

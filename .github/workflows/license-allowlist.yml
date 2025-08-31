@@ -1,0 +1,19 @@
+
+name: License Allowlist (SBOM)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: SBOM (CycloneDX)
+        uses: anchore/sbom-action@v0
+        with:
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+      - name: Check allowlist
+        run: python3 scripts/license_allowlist.py

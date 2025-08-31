@@ -1,0 +1,20 @@
+
+{
+  "name": "COSMOVERSE ENGINE",
+  "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y ninja-build ccache lcov clang-tidy iwyu cppcheck && git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename}",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "cmake.configureOnOpen": true,
+        "editor.formatOnSave": true
+      },
+      "extensions": ["ms-vscode.cmake-tools", "ms-vscode.cpptools", "twxs.cmake", "ms-vscode.gitlens"]
+    }
+  }
+}

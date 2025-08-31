@@ -1,0 +1,8 @@
+
+#compdef cosmoverse
+local -a cmds
+cmds=(version bench bench-omp plugin help)
+_arguments "1: :->cmds"
+case $state in
+  cmds) _describe 'command' cmds ;;
+esac

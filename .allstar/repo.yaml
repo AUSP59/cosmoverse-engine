@@ -1,0 +1,5 @@
+
+# Allstar policy (if GitHub App is enabled on the org)
+branch_protection:
+  enforce_admins: true
+  require_code_owner_review: true

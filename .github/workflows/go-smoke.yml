@@ -1,0 +1,21 @@
+
+name: Go Binding Smoke (advisory)
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go-smoke:
+    \1    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: '1.21' }
+      - name: Build lib
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCOSMO_BUILD_SHARED=ON && cmake --build build -j
+      - name: Build go example
+        run: |
+          cd bindings/go/cosmoverse
+          go build ./... || true
+          go run ./... || true

@@ -1,0 +1,11 @@
+
+ci:
+  - .github/workflows/**
+docs:
+  - docs/**
+code:
+  - src/**
+  - include/**
+build:
+  - CMakeLists.txt
+  - cmake/**
